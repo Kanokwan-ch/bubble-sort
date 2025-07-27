@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bubble Sort Game</title>
+<style>
+  /* --- CSS Section --- */
+  @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600&display=swap');
+
+  body {
+    font-family: 'Kanit', sans-serif;
+    background: linear-gradient(135deg, #d0e6f7, #f0f8ff);
+    margin: 0; padding: 0;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .screen {
+    display: none;
+    padding: 2rem 1.5rem;
+    max-width: 600px;
+    margin: 2rem auto 0 auto;
+    background: #fff;
+    border-radius: 25px;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+    width: 90%;
+  }
+  .active {
+    display: block;
+  }
+
+  h1 {
+    font-size: 2.5rem; margin-bottom: 2rem;
+    color: #3b3b98; text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+  }
+
+  #home button, #game button, #summaryPopup button {
+    border: none; cursor: pointer;
+    transition: all 0.3s ease; font-weight: 600;
+  }
+
+  #home .level-btn {
+    margin: 0.5rem; min-width: 120px; font-size: 1.2rem;
+    padding: 1rem 0; border-radius: 35px;
+    background: linear-gradient(135deg, #a3cef1, #6a9fb5);
+    color: #fff; box-shadow: 0 6px 12px rgba(106, 159, 181, 0.7);
+    border: 3px solid transparent; /* เตรียมพื้นที่สำหรับ border */
+  }
+  #home .level-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(106, 159, 181, 0.9);
+  }
+  #home .level-btn.selected {
+    border-color: #3b3b98;
+    background: linear-gradient(135deg, #6a9fb5, #a3cef1);
+  }
+
+  #home .rules-btn, #home .start-btn {
+    margin-top: 1rem; width: 80%; max-width: 280px;
+    font-size: 1.4rem; padding: 1.2rem 0; border-radius: 35px;
+  }
+
+  #home .rules-btn {
+    background: linear-gradient(135deg, #e0bbe4, #957dad); color: #fff;
+    box-shadow: 0 6px 12px rgba(149, 125, 173, 0.7);
+  }
+  #home .rules-btn:hover {
+    background: linear-gradient(135deg, #957dad, #e0bbe4);
+    box-shadow: 0 10px 20px rgba(149, 125, 173, 0.9);
+  }
+
+  #home .start-btn {
+    background: linear-gradient(135deg, #f6d365, #fda085); color: #4a2c2a;
+    box-shadow: 0 6px 12px rgba(253, 160, 133, 0.7);
+  }
+  #home .start-btn:hover {
+    background: linear-gradient(135deg, #fda085, #f6d365);
+    box-shadow: 0 10px 20px rgba(253, 160, 133, 0.9);
+  }
+
+  #game .controls {
+    display: flex; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem;
+  }
+  #game button {
+    min-width: 110px; font-size: 1.1rem; padding: 0.8rem 0;
+    margin: 0.4rem; border-radius: 30px;
+    background: linear-gradient(135deg, #74b9ff, #0984e3); color: #fff;
+    box-shadow: 0 6px 14px rgba(116, 185, 255, 0.65);
+  }
+  #game button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0984e3, #74b9ff);
+    box-shadow: 0 8px 18px rgba(116, 185, 255, 0.95);
+    transform: translateY(-2px);
+  }
+  #game button:disabled {
+    background: #bdc3c7; cursor: not-allowed;
+    box-shadow: none; transform: none;
+  }
+
+  .number-container {
+    display: flex; justify-content: center; margin: 2.5rem 0 3rem 0;
+    gap: 0.8rem; flex-wrap: wrap; user-select: none;
+  }
+  .bubble {
+    width: 65px; height: 65px; background: #ffeaa7;
+    border-radius: 50%; display: flex; justify-content: center;
+    align-items: center; font-size: 1.6rem; font-weight: 700;
+    color: #2d3436; box-shadow: 0 5px 15px rgba(255, 234, 167, 0.6);
+    transition: all 0.3s ease-in-out;
+  }
+
+  .compare {
+    background: #fab1a0 !important; color: #2c2c54 !important;
+    box-shadow: 0 6px 20px rgba(250, 177, 160, 0.9) !important;
+    transform: scale(1.1);
+  }
+  .done {
+    background: #55efc4 !important; color: #2d3436 !important;
+    box-shadow: 0 6px 20px rgba(0, 184, 148, 0.9) !important;
+  }
+  .action-success {
+    background-color: #2ecc71 !important; color: white !important;
+    transform: scale(1.15) !important;
+    box-shadow: 0px 0px 20px 5px rgba(46, 204, 113, 0.8) !important;
+  }
+
+  .rule-box {
+    background: #ffecec; padding: 1rem 1.5rem; margin: 1.5rem auto 0 auto;
+    border-radius: 20px; color: #636e72; font-size: 1rem;
+    line-height: 1.5; max-width: 90%; text-align: left;
+    box-shadow: inset 0 0 8px #fab1a0;
+  }
+  #feedback {
+    font-size: 1.3rem; font-weight: 600; color: #0984e3;
+    min-height: 2rem; margin-top: 1.5rem; user-select: none;
+  }
+
+  #summaryPopup {
+    display: none; position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%); background: #fff;
+    padding: 2rem; border-radius: 25px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    width: 90%; max-width: 450px; z-index: 100;
+  }
+  #summaryPopup h2 { color: #6c5ce7; margin-bottom: 1rem; }
+  #summaryPopup p { color: #2d3436; font-size: 1.1rem; line-height: 1.4; margin-bottom: 2rem; }
+  #summaryPopup button {
+    min-width: 120px; font-size: 1.1rem; padding: 0.8rem 1.5rem;
+    margin: 0 0.6rem; border-radius: 25px;
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white;
+    box-shadow: 0 6px 15px rgba(108, 92, 231, 0.8);
+  }
+  #summaryPopup button:hover {
+    background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+    box-shadow: 0 9px 20px rgba(162, 155, 254, 0.9);
+  }
+
+  #overlay {
+    display: none; position: fixed; top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.35); z-index: 50;
+  }
+</style>
+</head>
+<body>
+
+  <main id="home" class="screen active">
+    <h1> ✨ Bubble Sort ✨</h1>
+    <div id="levelSelection">
+      <button class="level-btn" data-level="1">ระดับ 1</button>
+      <button class="level-btn" data-level="2">ระดับ 2</button>
+      <button class="level-btn" data-level="3">ระดับ 3</button>
+    </div>
+    <button class="start-btn" data-action="startGame">🎮 เริ่มเกม</button>
+    <button class="rules-btn" data-action="toggleRules">📘 กติกา</button>
+    <div id="rulesBox" class="rule-box" style="display:none;">
+      <strong>กติกา:</strong><br>
+      1. เกมนี้สอนการเรียงลำดับเลขแบบ Bubble Sort<br>
+      2. ระบบจะไฮไลท์เลข 2 ตัวที่กำลังเปรียบเทียบให้โดยอัตโนมัติ<br>
+      3. ถ้าเลขตัวซ้าย <strong>มากกว่า</strong> ตัวขวา ให้กด <strong>สลับ</strong><br>
+      4. ถ้าเลขตัวซ้าย <strong>น้อยกว่าหรือเท่ากับ</strong> ตัวขวา ให้กด <strong>ไม่สลับ</strong><br>
+      5. เมื่อทำถูกต้อง ระบบจะไฮไลท์คู่ถัดไปให้เอง
+    </div>
+  </main>
+
+  <section id="game" class="screen">
+    <h1>Bubble Sort Game</h1>
+    <div class="number-container" id="numberContainer"></div>
+    <!-- ▼▼▼ ปุ่มเปรียบเทียบถูกลบไปแล้ว ▼▼▼ -->
+    <div class="controls">
+      <button data-action="swap">สลับ</button>
+      <button data-action="dontSwap">ไม่สลับ</button>
+      <button data-action="generateNew">🔄 สุ่มเลขใหม่</button>
+    </div>
+    <div id="feedback"></div>
+  </section>
+
+  <div id="overlay"></div>
+  <div id="summaryPopup">
+    <h2>สรุปขั้นตอน Bubble Sort</h2>
+    <p id="summaryText"></p>
+    <button data-action="nextLevel">ไปด่านถัดไป</button>
+    <button data-action="backToHome">กลับหน้าแรก</button>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const bubbleSortGame = {
+    state: {
+      numbers: [], i: 0, j: 0, difficulty: 1, sortedIndices: [],
+      isComparing: false, isActionLocked: false,
+    },
+    elements: {
+      homeScreen: document.getElementById('home'),
+      gameScreen: document.getElementById('game'),
+      levelSelection: document.getElementById('levelSelection'),
+      rulesBox: document.getElementById('rulesBox'),
+      numberContainer: document.getElementById('numberContainer'),
+      feedback: document.getElementById('feedback'),
+      summaryPopup: document.getElementById('summaryPopup'),
+      overlay: document.getElementById('overlay'),
+      summaryText: document.getElementById('summaryText'),
+      allButtons: document.querySelectorAll('[data-action], [data-level]'),
+      gameControlButtons: document.querySelectorAll('#game .controls button'),
+    },
+
+    init() {
+      this.elements.allButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+          const target = e.currentTarget;
+          if (target.dataset.level) this.setDifficulty(Number(target.dataset.level));
+          if (target.dataset.action) this.handleAction(target.dataset.action);
+        });
+      });
+      this.setDifficulty(1);
+    },
+    
+    handleAction(action) {
+      if (this.state.isActionLocked && ['swap', 'dontSwap'].includes(action)) return;
+
+      switch(action) {
+        case 'startGame': this.startGame(); break;
+        case 'toggleRules': this.toggleRules(); break;
+        // case 'compare' ถูกลบไปแล้วเพราะไม่มีปุ่ม
+        case 'swap': this.handleSwap(); break;
+        case 'dontSwap': this.handleDontSwap(); break;
+        case 'generateNew': this.resetGame(); break;
+        case 'nextLevel': this.nextLevel(); break;
+        case 'backToHome': this.backToHome(); break;
+      }
+    },
+    
+    setDifficulty(level) {
+      this.state.difficulty = level;
+      this.elements.levelSelection.querySelectorAll('.level-btn').forEach(btn => {
+        btn.classList.toggle('selected', Number(btn.dataset.level) === level);
+      });
+    },
+    
+    toggleRules() {
+      const isHidden = this.elements.rulesBox.style.display === 'none';
+      this.elements.rulesBox.style.display = isHidden ? 'block' : 'none';
+    },
+
+    startGame() {
+      this.elements.homeScreen.classList.remove('active');
+      this.elements.gameScreen.classList.add('active');
+      this.resetGame();
+    },
+
+    backToHome() {
+        this.elements.gameScreen.classList.remove('active');
+        this.elements.homeScreen.classList.add('active');
+        this.hideSummary();
+    },
+
+    lockActions() {
+      this.state.isActionLocked = true;
+      this.elements.gameControlButtons.forEach(btn => btn.disabled = true);
+    },
+
+    unlockActions() {
+      this.state.isActionLocked = false;
+      this.elements.gameControlButtons.forEach(btn => btn.disabled = false);
+    },
+
+    // --- ▼▼▼ ฟังก์ชันที่แก้ไขเพื่อเริ่มอัตโนมัติ ▼▼▼ ---
+    resetGame() {
+      this.state.i = 0; this.state.j = 0;
+      this.state.sortedIndices = []; this.state.isComparing = false;
+      this.hideSummary();
+      this.generateNumbers();
+      this.unlockActions();
+
+      // เริ่มการเปรียบเทียบคู่แรกอัตโนมัติหลังจาก 1 วินาที
+      setTimeout(() => {
+        this.compare();
+      }, 1000); // ปรับเวลาตรงนี้ได้
+    },
+
+    generateNumbers() {
+      this.state.numbers = [];
+      const count = 6 + (this.state.difficulty - 1) * 2;
+      while (this.state.numbers.length < count) {
+        let num = Math.floor(Math.random() * 50) + 1;
+        if (!this.state.numbers.includes(num)) this.state.numbers.push(num);
+      }
+      this.render();
+      // เปลี่ยนข้อความเริ่มต้น
+      this.updateFeedback('เตรียมพร้อม...');
+    },
+
+    render() {
+      this.elements.numberContainer.innerHTML = '';
+      this.state.numbers.forEach((num, idx) => {
+        const div = document.createElement('div');
+        div.className = 'bubble';
+        if (this.state.sortedIndices.includes(idx)) {
+          div.classList.add('done');
+        } else if (this.state.isComparing && (idx === this.state.j || idx === this.state.j + 1)) {
+          div.classList.add('compare');
+        }
+        div.textContent = num;
+        this.elements.numberContainer.appendChild(div);
+      });
+    },
+
+    updateFeedback(message) { this.elements.feedback.textContent = message; },
+
+    compare() {
+      if (this.isGameFinished()) return;
+      this.state.isComparing = true;
+      this.updateFeedback(`เปรียบเทียบ ${this.state.numbers[this.state.j]} กับ ${this.state.numbers[this.state.j + 1]}`);
+      this.render();
+    },
+
+    handleSwap() {
+      if (!this.state.isComparing) {
+        this.updateFeedback('❌ รอจังหวะก่อน!'); return;
+      }
+      if (this.state.numbers[this.state.j] > this.state.numbers[this.state.j + 1]) {
+        this.updateFeedback(`✅ สลับถูกต้อง!`);
+        [this.state.numbers[this.state.j], this.state.numbers[this.state.j + 1]] = 
+        [this.state.numbers[this.state.j + 1], this.state.numbers[this.state.j]];
+        this.runSuccessAnimationAndProceed();
+      } else {
+        this.updateFeedback(`❌ ผิด! ห้ามสลับ เพราะ ${this.state.numbers[this.state.j]} ไม่มากกว่า ${this.state.numbers[this.state.j + 1]}`);
+      }
+    },
+    
+    handleDontSwap() {
+      if (!this.state.isComparing) {
+        this.updateFeedback('❌ รอจังหวะก่อน!'); return;
+      }
+      if (this.state.numbers[this.state.j] <= this.state.numbers[this.state.j + 1]) {
+        this.updateFeedback(`✅ ไม่สลับถูกต้อง!`);
+        this.runSuccessAnimationAndProceed();
+      } else {
+        this.updateFeedback(`❌ ผิด! ต้องสลับ เพราะ ${this.state.numbers[this.state.j]} มากกว่า ${this.state.numbers[this.state.j + 1]}`);
+      }
+    },
+
+    runSuccessAnimationAndProceed() {
+      this.lockActions();
+      this.state.isComparing = false;
+      this.render(); 
+      
+      const bubbles = this.elements.numberContainer.children;
+      const firstBubble = bubbles[this.state.j];
+      const secondBubble = bubbles[this.state.j + 1];
+
+      if(firstBubble) firstBubble.classList.add('action-success');
+      if(secondBubble) secondBubble.classList.add('action-success');
+
+      setTimeout(() => {
+        if(firstBubble) firstBubble.classList.remove('action-success');
+        if(secondBubble) secondBubble.classList.remove('action-success');
+        this.nextStep();
+      }, 800);
+    },
+
+    nextStep() {
+      this.state.j++;
+      if (this.state.j >= this.state.numbers.length - this.state.i - 1) {
+        this.state.sortedIndices.push(this.state.numbers.length - this.state.i - 1);
+        this.state.i++;
+        this.state.j = 0;
+      }
+      this.render();
+
+      if (this.isGameFinished()) return;
+
+      setTimeout(() => {
+        this.compare();
+        this.unlockActions();
+      }, 400);
+    },
+    
+    isGameFinished() {
+        if (this.state.i >= this.state.numbers.length - 1) {
+            this.state.sortedIndices = this.state.numbers.map((_, index) => index);
+            this.updateFeedback('🎉 ยอดเยี่ยม! คุณเรียงลำดับสำเร็จแล้ว!');
+            this.render();
+            setTimeout(() => this.showSummary(), 1200);
+            return true;
+        }
+        return false;
+    },
+
+    showSummary() {
+      this.elements.summaryText.innerHTML = `คุณได้เรียนรู้ขั้นตอนของ Bubble Sort!<br>มันทำงานโดยการเปรียบเทียบเลขสองตัวติดกัน และสลับตำแหน่งถ้าตัวซ้ายมากกว่า จนครบทุกรอบ`;
+      this.elements.summaryPopup.style.display = 'block';
+      this.elements.overlay.style.display = 'block';
+    },
+
+    hideSummary() {
+      this.elements.summaryPopup.style.display = 'none';
+      this.elements.overlay.style.display = 'none';
+    },
+
+    nextLevel() {
+      if (this.state.difficulty < 3) {
+        this.setDifficulty(this.state.difficulty + 1);
+        this.resetGame();
+        alert('ยินดีด้วย! ไปด่านระดับ ' + this.state.difficulty + ' กันเลย 🎉');
+      } else {
+        alert('คุณเล่นครบทุกระดับแล้ว! กลับหน้าแรกเพื่อเริ่มใหม่ได้เลยค่ะ 😊');
+        this.backToHome();
+      }
+    },
+  };
+
+  bubbleSortGame.init();
+});
+</script>
+
+</body>
+</html>
